@@ -717,67 +717,70 @@ function hmrAccept(bundle /*: ParcelRequire */ , id /*: string */ ) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 var _templateHbs = require("./template.hbs");
 var _templateHbsDefault = parcelHelpers.interopDefault(_templateHbs);
-const input = document.getElementById("bookmarkInput");
-const addBtn = document.getElementById("addBookmarkBtn");
-const list = document.getElementById("bookmarkList");
+// ---------------- Закладки ----------------
+const bookmarkInput = document.getElementById("bookmarkInput");
+const addBookmarkBtn = document.getElementById("addBookmarkBtn");
+const bookmarkList = document.getElementById("bookmarkList");
 let bookmarks = JSON.parse(localStorage.getItem("bookmarks")) || [];
 function saveBookmarks() {
     localStorage.setItem("bookmarks", JSON.stringify(bookmarks));
 }
 function renderBookmarks() {
-    list.innerHTML = "";
+    bookmarkList.innerHTML = "";
     bookmarks.forEach((url, index)=>{
         const li = document.createElement("li");
         const link = document.createElement("a");
         link.href = url;
         link.textContent = url;
         link.target = "_blank";
-        const delBtn = document.createElement("button");
-        delBtn.textContent = "X";
-        delBtn.classList.add("delete");
-        delBtn.onclick = ()=>{
+        const deleteBtn = document.createElement("button");
+        deleteBtn.textContent = "X";
+        deleteBtn.classList.add("delete");
+        deleteBtn.addEventListener("click", ()=>{
             bookmarks.splice(index, 1);
             saveBookmarks();
             renderBookmarks();
-        };
-        link.ondblclick = ()=>{
+        });
+        link.addEventListener("dblclick", ()=>{
             const newUrl = prompt("\u041D\u043E\u0432\u0438\u0439 URL:", url);
             if (newUrl) {
                 bookmarks[index] = newUrl;
                 saveBookmarks();
                 renderBookmarks();
             }
-        };
-        li.append(link, delBtn);
-        list.appendChild(li);
+        });
+        li.append(link, deleteBtn);
+        bookmarkList.appendChild(li);
     });
 }
-addBtn.onclick = ()=>{
-    if (!input.value.trim()) return;
-    bookmarks.push(input.value.trim());
-    input.value = "";
+addBookmarkBtn.addEventListener("click", ()=>{
+    const value = bookmarkInput.value.trim();
+    if (!value) return;
+    bookmarks.push(value);
     saveBookmarks();
     renderBookmarks();
-};
+    bookmarkInput.value = "";
+});
 renderBookmarks();
-const username = document.getElementById("username");
-const password = document.getElementById("password");
-const saveBtn = document.getElementById("saveBtn");
-function loadForm() {
+// ---------------- Форма ----------------
+const usernameInput = document.getElementById("username");
+const passwordInput = document.getElementById("password");
+const saveFormBtn = document.getElementById("saveBtn");
+function loadFormData() {
     const data = JSON.parse(localStorage.getItem("formData"));
-    if (data) {
-        username.value = data.username || "";
-        password.value = data.password || "";
-    }
+    if (!data) return;
+    usernameInput.value = data.username || "";
+    passwordInput.value = data.password || "";
 }
-saveBtn.onclick = ()=>{
-    const data = {
-        username: username.value,
-        password: password.value
+saveFormBtn.addEventListener("click", ()=>{
+    const formData = {
+        username: usernameInput.value,
+        password: passwordInput.value
     };
-    localStorage.setItem("formData", JSON.stringify(data));
-};
-loadForm();
+    localStorage.setItem("formData", JSON.stringify(formData));
+});
+loadFormData();
+// ---------------- Товари ----------------
 const products = [
     {
         name: "Laptop",
@@ -795,15 +798,15 @@ const products = [
         description: "Noise cancelling"
     }
 ];
-const container = document.getElementById("products");
-const search = document.getElementById("search");
+const productsContainer = document.getElementById("products");
+const searchInput = document.getElementById("search");
 function renderProducts(data) {
-    container.innerHTML = (0, _templateHbsDefault.default)(data);
+    productsContainer.innerHTML = (0, _templateHbsDefault.default)(data);
 }
-search.addEventListener("input", (e)=>{
+searchInput.addEventListener("input", (e)=>{
     const value = e.target.value.toLowerCase();
-    const filtered = products.filter((p)=>p.name.toLowerCase().includes(value));
-    renderProducts(filtered);
+    const filteredProducts = products.filter((product)=>product.name.toLowerCase().includes(value));
+    renderProducts(filteredProducts);
 });
 renderProducts(products);
 
